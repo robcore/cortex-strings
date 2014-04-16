@@ -100,15 +100,20 @@ def plot(records, field, scale, ylabel):
                 # still running which can lead to bad data
                 print ex, 'on %s of %s' % (variant, test)
 
-        pylab.legend(loc='lower right', ncol=2, prop={'size': 'small'})
         pylab.xlabel('Block size (B)')
         pylab.ylabel(ylabel)
         pylab.title('%s %s' % (test, field))
         pylab.grid()
 
+        pylab.legend(ncol=2, prop={'size': 'small'})
         pylab.savefig('%s-%s.png' % (test, field), dpi=100)
+        pylab.legend(ncol=2, prop={'size': 'large'})
+        pylab.savefig('%s-%s-big.png' % (test, field), dpi=2500)
         pylab.semilogx(basex=2)
+        pylab.legend(ncol=2, prop={'size': 'small'})
         pylab.savefig('%s-%s-semilog.png' % (test, field), dpi=100)
+        pylab.legend(ncol=2, prop={'size': 'large'})
+        pylab.savefig('%s-%s-semilog-big.png' % (test, field), dpi=2500)
         pylab.clf()
 
 def test():
