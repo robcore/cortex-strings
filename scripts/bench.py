@@ -15,9 +15,6 @@ import subprocess
 import math
 import sys
 
-# Prefix to the executables
-build = '../build/try-'
-
 ALL = 'memchr memcmp memcpy memset strchr strcmp strcpy strlen'
 
 HAS = {
@@ -62,7 +59,7 @@ def run(cache, variant, function, bytes, loops, alignment, run_id, quiet=False):
     if key in cache:
         got = cache[key]
     else:
-        xbuild = build
+        xbuild = build + "/try-"
         cmd = '%(xbuild)s%(variant)s -t %(function)s -c %(bytes)s -l %(loops)s -a %(alignment)s -r %(run_id)s' % locals()
 
         try:
@@ -133,7 +130,11 @@ def run_top(cache):
     parser.add_argument("-v", "--variants", nargs="+", help="library variant to run (run all if not specified)", default = VARIANTS, choices = VARIANTS)
     parser.add_argument("-f", "--functions", nargs="+", help="function to run (run all if not specified)", default = FUNCTIONS, choices = FUNCTIONS)
     parser.add_argument("-l", "--limit", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
+    parser.add_argument("-p", "--prefix", help="path to executables, relative to CWD", default=".")
     args = parser.parse_args()
+
+    global build
+    build = args.prefix
 
     # Test all powers of 2
     step1 = 2.0
