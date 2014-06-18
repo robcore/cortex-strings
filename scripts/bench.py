@@ -127,6 +127,7 @@ def run_many(cache, variants, bytes, all_functions):
 
 def run_top(cache):
     parser = argparse.ArgumentParser()
+    #Syntax: python ../cortex-strings/scripts/bench.py -f bounce memcpy -v this glibc
     parser.add_argument("-v", "--variants", nargs="+", help="library variant to run (run all if not specified)", default = VARIANTS, choices = VARIANTS)
     parser.add_argument("-f", "--functions", nargs="+", help="function to run (run all if not specified)", default = FUNCTIONS, choices = FUNCTIONS)
     parser.add_argument("-l", "--limit", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
