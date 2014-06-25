@@ -67,7 +67,8 @@ def parse():
 def plot(records, field, scale, ylabel):
     variants = unique(records, 'variant')
     tests = unique(records, 'test')
-    tests.remove('bounce')
+    if 'bounce' in tests:
+        tests.remove('bounce')
 
     colours = libplot.make_colours()
 
