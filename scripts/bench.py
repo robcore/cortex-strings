@@ -137,18 +137,13 @@ def run_top(cache):
     global build
     build = args.prefix
 
-    # Test all powers of 2
-    step1 = 2.0
-    # Test intermediate powers of 1.4
-    step2 = 1.4
-    
     bytes = []
     
-    for step in [step1, step2]:
-        if step:
-            # Figure out how many steps get us up to the top
-            steps = int(round(math.log(args.limit) / math.log(step)))
-            bytes.extend([int(step**x) for x in range(0, steps+1)])
+    #Test powers of 2.0, 1.4
+    for step in [2.0, 1.4]:
+        # Figure out how many steps get us up to the top
+        steps = int(round(math.log(args.limit) / math.log(step)))
+        bytes.extend([int(step**x) for x in range(0, steps+1)])
 
     run_many(cache, args.variants, bytes, args.functions)
 
