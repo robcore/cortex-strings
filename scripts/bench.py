@@ -136,10 +136,15 @@ def run_top(cache):
     #Syntax: python ../cortex-strings/scripts/bench.py -f bounce memcpy -v this glibc
     parser.add_argument("-v", "--variants", nargs="+", help="library variant to run (run all if not specified)", default = VARIANTS, choices = VARIANTS)
     parser.add_argument("-f", "--functions", nargs="+", help="function to run (run all if not specified)", default = FUNCTIONS, choices = FUNCTIONS)
-    parser.add_argument("-l", "--limit", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
+    parser.add_argument("-u", "--upper", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
+    parser.add_argument("-l", "--lower", type=int, help="lowest block size to test (bytes)", default = 0)
+    parser.add_argument("-s", "--steps", type=float, nargs="+", help="steps to test powers of", default = [1.4, 2.0])
     parser.add_argument("-p", "--prefix", help="path to executables, relative to CWD", default=".")
     parser.add_argument("-d", "--dry-run", help="Dry run: just print the invocations that we would use", default=False, action="store_true")
     args = parser.parse_args()
+
+    if(args.lower >= args.upper):
+      raise Exception("Range starts after it ends!")
 
     global build, DRY_RUN
     build = args.prefix
@@ -147,11 +152,14 @@ def run_top(cache):
 
     bytes = []
     
-    #Test powers of 2.0, 1.4
-    for step in [2.0, 1.4]:
-        # Figure out how many steps get us up to the top
-        steps = int(round(math.log(args.limit) / math.log(step)))
-        bytes.extend([int(step**x) for x in range(0, steps+1)])
+    #Test powers of steps
+    for step in args.steps:
+        print step
+        print args.upper
+        print args.lower
+        # Figure out how many steps get us up to the top (not sure if it's exactly right, but it seems to be close enough)
+        steps = int(round(math.log(args.upper - args.lower) / math.log(step)))
+        bytes.extend([args.lower -1 + int(step**x) for x in range(0, steps+1)])
 
     run_many(cache, args.variants, bytes, args.functions)
 
