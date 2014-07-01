@@ -52,6 +52,8 @@ FUNCTIONS = sorted(ALIGNMENTS.keys())
 
 NUM_RUNS = 5
 
+DRY_RUN = False
+
 def run(cache, variant, function, bytes, loops, alignment, run_id, quiet=False):
     """Perform a single run, exercising the cache as appropriate."""
     key = ':'.join('%s' % x for x in (variant, function, bytes, loops, alignment, run_id))
@@ -62,10 +64,14 @@ def run(cache, variant, function, bytes, loops, alignment, run_id, quiet=False):
         xbuild = build + "/try-"
         cmd = '%(xbuild)s%(variant)s -t %(function)s -c %(bytes)s -l %(loops)s -a %(alignment)s -r %(run_id)s' % locals()
 
-        try:
-            got = subprocess.check_output(cmd.split()).strip()
-        except OSError, ex:
-            assert False, 'Error %s while running %s' % (ex, cmd)
+        if(DRY_RUN):
+            print cmd
+            return 1
+        else:
+            try:
+                got = subprocess.check_output(cmd.split()).strip()
+            except OSError, ex:
+                assert False, 'Error %s while running %s' % (ex, cmd)
 
     parts = got.split(':')
     took = float(parts[7])
@@ -132,10 +138,12 @@ def run_top(cache):
     parser.add_argument("-f", "--functions", nargs="+", help="function to run (run all if not specified)", default = FUNCTIONS, choices = FUNCTIONS)
     parser.add_argument("-l", "--limit", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
     parser.add_argument("-p", "--prefix", help="path to executables, relative to CWD", default=".")
+    parser.add_argument("-d", "--dry-run", help="Dry run: just print the invocations that we would use", default=False, action="store_true")
     args = parser.parse_args()
 
-    global build
+    global build, DRY_RUN
     build = args.prefix
+    DRY_RUN = args.dry_run
 
     bytes = []
     
