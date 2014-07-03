@@ -146,12 +146,14 @@ def run_top(cache):
     parser.add_argument("-p", "--prefix", help="path to executables, relative to CWD", default=".")
     parser.add_argument("-d", "--dry-run", help="Dry run: just print the invocations that we would use", default=False, action="store_true")
     parser.add_argument("-a", "--alignments", nargs="+", type=parse_alignments, help="Alignments, e.g. 2:32 for 2-byte-aligned source to 4-byte-aligned dest. Functions with just a dest use the number before the colon.", default=['1:32', '2:32', '4:32', '8:32', '16:32', '32:32'])
+    parser.add_argument("-r", "--runs", type=int, help="Number of runs of each test", default=5)
     args = parser.parse_args()
 
     if(args.lower >= args.upper):
       raise Exception("Range starts after it ends!")
 
-    global build, DRY_RUN, ALIGNMENTS
+    global build, DRY_RUN, ALIGNMENTS, NUM_RUNS
+    NUM_RUNS = args.runs
     build = args.prefix
     DRY_RUN = args.dry_run
     for function in SINGLE_BUFFER_FUNCTIONS:
