@@ -40,7 +40,7 @@ aarch64*-*-*)
   ;;
 arm*-*-*)
   arch=aarch32
-  default_submachine=cortex-a9
+  default_submachine=cortex-a15
   ;;
 x86_64-*-*-*)
   arch=generic
