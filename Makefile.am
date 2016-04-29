@@ -240,7 +240,7 @@ libbionic_a15_a_CFLAGS = -Wa,-mimplicit-it=thumb
 
 libbionic_krait_a_SOURCES = \
 	$(neon_bionic_krait_sources) \
-	reference/bionic-krait/memcmp.S \
+	reference/bionic-a15/memcmp.S \
 	reference/bionic-krait/strcmp.S \
 	reference/bionic-a15/strcpy.S \
 	reference/bionic-a15/strlen.S
