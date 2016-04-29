@@ -45,24 +45,15 @@
 	/* This implementation requires ARM state.  */
 	.arm
 
+#define __ARM_NEON__
+
 #ifdef __ARM_NEON__
 
-	.fpu	neon
+	.fpu	vfpv4-neon
 	.arch	armv7-a
 # define FRAME_SIZE	4
 # define USE_VFP
 # define USE_NEON
-
-#elif !defined (__SOFTFP__)
-
-	.arch	armv6
-	.fpu	vfpv2
-# define FRAME_SIZE	32
-# define USE_VFP
-
-#else
-	.arch	armv6
-# define FRAME_SIZE    32
 
 #endif
 
