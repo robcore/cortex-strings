@@ -176,10 +176,10 @@ neon_bionic_a9_sources = \
 neon_bionic_a15_sources = \
 	reference/bionic-a15/memcpy.S \
 	reference/bionic-a15/memset.S
-fpu_flags = -mfpu=neon
+fpu_flags = -mfpu=vfpv4-neon
 else
 if WITH_VFP
-fpu_flags = -mfpu=vfp
+fpu_flags = -mfpu=vfpv4
 else
 fpu_flags = -msoft-float
 endif
@@ -302,7 +302,7 @@ endif
 libcortex_strings_la_LDFLAGS = -version-info 1:0:0
 
 AM_CFLAGS = \
-	-std=gnu99 -Wall \
+	-std=gnu99 \
 	-fno-builtin -fno-stack-protector -U_FORTIFY_SOURCE \
 	$(AM_CPPFLAGS)
 
