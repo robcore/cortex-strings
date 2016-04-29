@@ -180,7 +180,7 @@ neon_bionic_krait_sources = \
 	reference/bionic-krait/memcpy_base.S \
 	reference/bionic-krait/memcpy.S \
 	reference/bionic-krait/memset.S
-fpu_flags = -mfpu=vfpv4-neon
+fpu_flags = -mfpu=neon-vfpv4
 else
 if WITH_VFP
 fpu_flags = -mfpu=vfpv4

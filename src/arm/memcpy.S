@@ -49,7 +49,7 @@
 
 #ifdef __ARM_NEON__
 
-	.fpu	vfpv4-neon
+	.fpu	neon-vfpv4
 	.arch	armv7-a
 # define FRAME_SIZE	4
 # define USE_VFP

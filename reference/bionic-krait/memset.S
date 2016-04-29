@@ -32,7 +32,7 @@
  * unaligned neon instruction accesses to memory.
  */
 
-    .fpu    vfpv4-neon
+    .fpu    neon-vfpv4
     .syntax unified
 
 ENTRY(__memset_chk)
