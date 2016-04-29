@@ -39,8 +39,6 @@
 
  */
 
-#include <private/bionic_asm.h>
-
 @ 2011-02-07 david.gilbert@linaro.org
 @    Extracted from local git a5b438d861
 @ 2011-07-14 david.gilbert@linaro.org
