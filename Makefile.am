@@ -203,6 +203,7 @@ noinst_PROGRAMS += \
 noinst_LIBRARIES += \
 	libbionic-a9.a \
 	libbionic-a15.a \
+	libbionic-krait.a \
 	libcsl.a \
 	libglibc.a \
 	libnewlib.a \
