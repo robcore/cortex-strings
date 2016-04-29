@@ -56,7 +56,7 @@ AM_CONDITIONAL([HOST_GENERIC], [test x$arch = xgeneric])
 
 AC_ARG_WITH([cpu],
 	    AS_HELP_STRING([--with-cpu=CPU],
-                           [select code for CPU variant @<:@default=cortex-a9@:>@]]),
+                           [select code for CPU variant @<:@default=cortex-a15@:>@]]),
 	    [dnl
   case "$withval" in
   yes|'') AC_MSG_ERROR([--with-cpu requires an argument]) ;;

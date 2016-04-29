@@ -25,6 +25,7 @@ HAS = {
     'this': 'bounce memchr memcpy memset strchr strcmp strcpy strlen',
     'bionic-a9': 'memcmp memcpy memset strcmp strcpy strlen',
     'bionic-a15': 'memcmp memcpy memset strcmp strcpy strlen',
+    'bionic-krait': 'memcmp memcpy memcpy_base memset strcmp',
     'bionic-c': FUNCTIONS,
     'csl': 'memcpy memset',
     'glibc': 'memcpy memset strchr strlen',

@@ -176,6 +176,10 @@ neon_bionic_a9_sources = \
 neon_bionic_a15_sources = \
 	reference/bionic-a15/memcpy.S \
 	reference/bionic-a15/memset.S
+neon_bionic_krait_sources = \
+	reference/bionic-krait/memcpy_base.S \
+	reference/bionic-krait/memcpy.S \
+	reference/bionic-krait/memset.S
 fpu_flags = -mfpu=vfpv4-neon
 else
 if WITH_VFP
@@ -189,6 +193,7 @@ endif
 noinst_PROGRAMS += \
 	try-bionic-a9 \
 	try-bionic-a15 \
+	try-bionic-krait \
 	try-csl \
 	try-glibc \
 	try-newlib \
@@ -232,6 +237,15 @@ libbionic_a15_a_SOURCES = \
 
 libbionic_a15_a_CFLAGS = -Wa,-mimplicit-it=thumb
 
+libbionic_krait_a_SOURCES = \
+	$(neon_bionic_krait_sources) \
+	reference/bionic-krait/memcmp.S \
+	reference/bionic-krait/strcmp.S \
+	reference/bionic-a15/strcpy.S \
+	reference/bionic-a15/strlen.S
+
+libbionic_krait_a_CFLAGS = -Wa,-mimplicit-it=thumb
+
 libcsl_a_SOURCES = \
 	reference/csl/memcpy.c \
 	reference/csl/memset.c \
@@ -266,6 +280,8 @@ try_bionic_a9_SOURCES =
 try_bionic_a9_LDADD = libmulti.a libbionic-a9.a -lrt
 try_bionic_a15_SOURCES =
 try_bionic_a15_LDADD = libmulti.a libbionic-a15.a -lrt
+try_bionic_krait_SOURCES =
+try_bionic_krait_LDADD = libmulti.a libbionic-krait.a -lrt
 try_csl_SOURCES =
 try_csl_LDADD = libmulti.a libcsl.a -lrt
 try_glibc_SOURCES =
