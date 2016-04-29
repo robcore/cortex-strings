@@ -15,45 +15,48 @@ import subprocess
 import math
 import sys
 
-# Prefix to the executables
-build = '../build/try-'
+SINGLE_BUFFER_FUNCTIONS = ['strchr', 'memset', 'strlen', 'memchr']
+DUAL_BUFFER_FUNCTIONS = ['memcmp', 'memcpy', 'strcmp', 'strcpy']
 
-ALL = 'memchr memcmp memcpy memset strchr strcmp strcpy strlen'
+FUNCTIONS = list(SINGLE_BUFFER_FUNCTIONS)
+FUNCTIONS.extend(DUAL_BUFFER_FUNCTIONS)
 
 HAS = {
     'this': 'bounce memchr memcpy memset strchr strcmp strcpy strlen',
     'bionic-a9': 'memcmp memcpy memset strcmp strcpy strlen',
     'bionic-a15': 'memcmp memcpy memset strcmp strcpy strlen',
-    'bionic-c': ALL,
+    'bionic-c': FUNCTIONS,
     'csl': 'memcpy memset',
     'glibc': 'memcpy memset strchr strlen',
-    'glibc-c': ALL,
+    'glibc-c': FUNCTIONS,
     'newlib': 'memcpy strcmp strcpy strlen',
-    'newlib-c': ALL,
+    'newlib-c': FUNCTIONS,
     'newlib-xscale': 'memchr memcpy memset strchr strcmp strcpy strlen',
     'plain': 'memset memcpy strcmp strcpy',
 }
 
-BOUNCE_ALIGNMENTS = ['1']
-SINGLE_BUFFER_ALIGNMENTS = ['1', '2', '4', '8', '16', '32']
-DUAL_BUFFER_ALIGNMENTS = ['1:32', '2:32', '4:32', '8:32', '16:32', '32:32']
-
 ALIGNMENTS = {
-    'bounce': BOUNCE_ALIGNMENTS,
-    'memchr': SINGLE_BUFFER_ALIGNMENTS,
-    'memset': SINGLE_BUFFER_ALIGNMENTS,
-    'strchr': SINGLE_BUFFER_ALIGNMENTS,
-    'strlen': SINGLE_BUFFER_ALIGNMENTS,
-    'memcmp': DUAL_BUFFER_ALIGNMENTS,
-    'memcpy': DUAL_BUFFER_ALIGNMENTS,
-    'strcmp': DUAL_BUFFER_ALIGNMENTS,
-    'strcpy': DUAL_BUFFER_ALIGNMENTS,
+    'bounce': ['1'],
 }
 
 VARIANTS = sorted(HAS.keys())
-FUNCTIONS = sorted(ALIGNMENTS.keys())
 
 NUM_RUNS = 5
+
+DRY_RUN = False
+
+#CLI helpers
+def parse_alignments(alignment):
+    e = Exception("Alignments must be expressed as colon-separated digits e.g. 8:32 16:16")
+    alignments = alignment.split(':')
+    if len(alignments) != 2:
+        raise e
+    try:
+        [int(x) for x in alignments]
+    except:
+        raise e
+    return alignment
+
 
 def run(cache, variant, function, bytes, loops, alignment, run_id, quiet=False):
     """Perform a single run, exercising the cache as appropriate."""
@@ -62,13 +65,17 @@ def run(cache, variant, function, bytes, loops, alignment, run_id, quiet=False):
     if key in cache:
         got = cache[key]
     else:
-        xbuild = build
+        xbuild = build + "/try-"
         cmd = '%(xbuild)s%(variant)s -t %(function)s -c %(bytes)s -l %(loops)s -a %(alignment)s -r %(run_id)s' % locals()
 
-        try:
-            got = subprocess.check_output(cmd.split()).strip()
-        except OSError, ex:
-            assert False, 'Error %s while running %s' % (ex, cmd)
+        if(DRY_RUN):
+            print cmd
+            return 1
+        else:
+            try:
+                got = subprocess.check_output(cmd.split()).strip()
+            except OSError, ex:
+                assert False, 'Error %s while running %s' % (ex, cmd)
 
     parts = got.split(':')
     took = float(parts[7])
@@ -123,30 +130,53 @@ def run_many(cache, variants, bytes, all_functions):
 
                 for b in sorted(bytes):
                     # Figure out the number of loops to give a roughly consistent run
-                    loops = int(f / math.sqrt(max(1, b)))
+                    if NUM_LOOPS == 0:
+                        loops = int(f / math.sqrt(max(1, b)))
+                    else:
+                        loops = NUM_LOOPS
                     for run_id in range(0, NUM_RUNS):
                         run(cache, variant, function, b, loops, alignment,
                             run_id)
 
 def run_top(cache):
     parser = argparse.ArgumentParser()
+    #Syntax: python ../cortex-strings/scripts/bench.py -f bounce memcpy -v this glibc
     parser.add_argument("-v", "--variants", nargs="+", help="library variant to run (run all if not specified)", default = VARIANTS, choices = VARIANTS)
     parser.add_argument("-f", "--functions", nargs="+", help="function to run (run all if not specified)", default = FUNCTIONS, choices = FUNCTIONS)
-    parser.add_argument("-l", "--limit", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
+    parser.add_argument("-u", "--upper", type=int, help="upper limit to test to (in bytes)", default = 512*1024)
+    parser.add_argument("-l", "--lower", type=int, help="lowest block size to test (bytes)", default = 0)
+    parser.add_argument("-s", "--steps", nargs="+", help="steps to test powers of", default = ['1.4', '2.0'])
+    parser.add_argument("-p", "--prefix", help="path to executables, relative to CWD", default=".")
+    parser.add_argument("-d", "--dry-run", help="Dry run: just print the invocations that we would use", default=False, action="store_true")
+    parser.add_argument("-a", "--alignments", nargs="+", type=parse_alignments, help="Alignments, e.g. 2:32 for 2-byte-aligned source to 4-byte-aligned dest. Functions with just a dest use the number before the colon.", default=['1:32', '2:32', '4:32', '8:32', '16:32', '32:32'])
+    parser.add_argument("-r", "--runs", type=int, help="Number of runs of each test", default=5)
+    parser.add_argument("-o", "--loops", type=int, help="Lock the number of memcpy loops to perform", default = 0)
     args = parser.parse_args()
 
-    # Test all powers of 2
-    step1 = 2.0
-    # Test intermediate powers of 1.4
-    step2 = 1.4
-    
+    if(args.lower >= args.upper):
+      raise Exception("Range starts after it ends!")
+
+    global build, DRY_RUN, ALIGNMENTS, NUM_RUNS, NUM_LOOPS
+    NUM_LOOPS = args.loops
+    NUM_RUNS = args.runs
+    build = args.prefix
+    DRY_RUN = args.dry_run
+    for function in SINGLE_BUFFER_FUNCTIONS:
+        ALIGNMENTS[function] = [x.split(':')[0] for x in args.alignments]
+    for function in DUAL_BUFFER_FUNCTIONS:
+        ALIGNMENTS[function] = args.alignments
+
     bytes = []
     
-    for step in [step1, step2]:
-        if step:
-            # Figure out how many steps get us up to the top
-            steps = int(round(math.log(args.limit) / math.log(step)))
-            bytes.extend([int(step**x) for x in range(0, steps+1)])
+    #Test powers of steps
+    for step in args.steps:
+        if step[0] == '+':
+            step = int(step[1:])
+            bytes.extend(range(args.lower, args.upper + step, step))
+        else:
+            step = float(step)
+            steps = int(round(math.log(args.upper - args.lower, step)))
+            bytes.extend([args.lower - 1 + int(step**x) for x in range(steps+1)])
 
     run_many(cache, args.variants, bytes, args.functions)
 

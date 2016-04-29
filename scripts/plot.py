@@ -43,9 +43,9 @@ def parse():
     rows = [[to_float(y) for y in x] for x in rows]
 
     # Scan once to calculate the overhead
-    r = [Record(*(x + [0, 0, 0])) for x in rows]
-    bounces = pylab.array([(x.loops, x.rawtime) for x in r if x.test == 'bounce'])
-    fit = pylab.polyfit(bounces[:,0], bounces[:,1], 1)
+    #r = [Record(*(x + [0, 0, 0])) for x in rows]
+    #bounces = pylab.array([(x.loops, x.rawtime) for x in r if x.test == 'bounce'])
+    #fit = pylab.polyfit(bounces[:,0], bounces[:,1], 1)
 
     records = []
 
@@ -55,17 +55,20 @@ def parse():
 
         bytes = r1.size * r1.loops
         # Calculate the bounce time
-        delta = pylab.polyval(fit, [r1.loops])
-        time = r1.rawtime - delta
-        rate = bytes / time
+        #delta = pylab.polyval(fit, [r1.loops])
+        #time = r1.rawtime - delta
+        #rate = bytes / time
+        rate = bytes / r1.rawtime
 
-        records.append(Record(*(row + [time, bytes, rate])))
+        records.append(Record(*(row + [r1.rawtime, bytes, rate])))
 
     return records
 
 def plot(records, field, scale, ylabel):
     variants = unique(records, 'variant')
     tests = unique(records, 'test')
+    if 'bounce' in tests:
+        tests.remove('bounce')
 
     colours = libplot.make_colours()
 
@@ -98,15 +101,20 @@ def plot(records, field, scale, ylabel):
                 # still running which can lead to bad data
                 print ex, 'on %s of %s' % (variant, test)
 
-        pylab.legend(loc='lower right', ncol=2, prop={'size': 'small'})
         pylab.xlabel('Block size (B)')
         pylab.ylabel(ylabel)
         pylab.title('%s %s' % (test, field))
         pylab.grid()
 
+        pylab.legend(ncol=2, prop={'size': 'small'})
         pylab.savefig('%s-%s.png' % (test, field), dpi=100)
+        pylab.legend(ncol=2, prop={'size': 'large'})
+        pylab.savefig('%s-%s-big.png' % (test, field), dpi=2500)
         pylab.semilogx(basex=2)
+        pylab.legend(ncol=2, prop={'size': 'small'})
         pylab.savefig('%s-%s-semilog.png' % (test, field), dpi=100)
+        pylab.legend(ncol=2, prop={'size': 'large'})
+        pylab.savefig('%s-%s-semilog-big.png' % (test, field), dpi=2500)
         pylab.clf()
 
 def test():
