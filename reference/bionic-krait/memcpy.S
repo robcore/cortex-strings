@@ -36,7 +36,7 @@
 
         .text
         .syntax unified
-        .fpu    neon
+        .fpu    vfpv4-neon
         .thumb
         .thumb_func
 
