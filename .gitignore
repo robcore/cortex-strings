@@ -23,3 +23,15 @@ depcomp
 install-sh
 missing
 stamp-h1
+config.guess
+config.h
+config.log
+config.status
+config.sub
+dhry
+dhry-native
+libtool
+ltmain.sh
+out/
+test-driver
+
