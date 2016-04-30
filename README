@@ -39,6 +39,7 @@ The routines were collected from the following releases:
  * EGLIBC 2.13
  * Newlib 1.19.0
  * Bionic android-2.3.5_r1
+ * Bionic linaro-android-6.0
 
 == Licensing ==
 All Linaro-authored routines are under the modified BSD license:
